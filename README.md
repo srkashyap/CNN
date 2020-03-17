@@ -7,5 +7,5 @@ Method:
 CNN is used to build a classifier for the images. The quality of the liver is to be determined as good or bad. 
 Tasks completed:
 1. Tried building basic architecture ( unsuccessful)
-2. Using transfer learning (current objective)
+2. Using transfer learning (current objective)(13-mar-2020)
 
