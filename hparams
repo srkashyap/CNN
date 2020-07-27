@@ -1,0 +1,61 @@
+#### implementation of Hyperparameter Tuning with the HParams Dashboard #########
+
+
+HP_NUM_UNITS = hp.HParam('num_units', hp.Discrete([512, 128]))
+HP_NUM_UNITS_1 = hp.HParam('num_units_1', hp.Discrete([64, 32]))
+HP_DROPOUT = hp.HParam('dropout', hp.RealInterval(0.1, 0.2))
+HP_OPTIMIZER = hp.HParam('optimizer', hp.Discrete([0.0001,0.00001]))
+METRIC_ACCURACY = 'accuracy'
+
+
+with tf.summary.create_file_writer('logs/hparam_tuning').as_default():
+  hp.hparams_config(
+    hparams=[HP_NUM_UNITS, HP_DROPOUT, HP_OPTIMIZER],
+    metrics=[hp.Metric(METRIC_ACCURACY, display_name='Accuracy')],
+  )
+  
+
+
+  
+def train_test_model(hparams):
+  model = tf.keras.applications.InceptionV3(include_top=False, weights='imagenet', input_shape=(299,299,3), pooling=None, classes=2)
+  x = model.output
+  x = GlobalAveragePooling2D()(x)
+  x = Dense(hparams[HP_NUM_UNITS], activation='relu')(x)
+  x = Dropout(0.2)(x)
+  x = Dense(hparams[HP_NUM_UNITS_1], activation='relu')(x)
+  predictions = Dense(2, activation='softmax')(x)
+  model = Model(inputs=model.input, outputs=predictions)
+  model.compile(
+      optimizer=SGD(learning_rate=hparams[HP_OPTIMIZER], momentum=0.001, nesterov=False, name="SGD"),
+      loss='binary_crossentropy',metrics=['acc'],
+  )
+
+  model.fit(X, Y, epochs=50, batch_size=32,validation_split= 0.85) # Run with 1 epoch to speed things up for demo purposes
+  _, accuracy = model.evaluate(X_test,Y_test)
+  return accuracy
+
+
+
+def run(run_dir, hparams):
+  with tf.summary.create_file_writer(run_dir).as_default():
+    hp.hparams(hparams)  # record the values used in this trial
+    accuracy = train_test_model(hparams)
+    tf.summary.scalar(METRIC_ACCURACY, accuracy, step=1)
+
+session_num = 0
+
+for num_units in HP_NUM_UNITS.domain.values:
+  for dropout_rate in (HP_DROPOUT.domain.min_value, HP_DROPOUT.domain.max_value):
+    for optimizer in HP_OPTIMIZER.domain.values:
+      hparams = {
+          HP_NUM_UNITS:   num_units,
+          HP_NUM_UNITS_1: num_units_1,
+          HP_DROPOUT:     dropout_rate,
+          HP_OPTIMIZER:   optimizer,
+      }
+      run_name = "run-%d" % session_num
+      print('--- Starting trial: %s' % run_name)
+      print({h.name: hparams[h] for h in hparams})
+      run('logs/hparam_tuning/' + run_name, hparams)
+      session_num += 1 
