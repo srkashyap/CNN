@@ -1,0 +1,37 @@
+import pandas as pd
+import scipy.misc
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+mask = pd.read_csv(r'C:\Users\kashyapc\Box\Liver Project Collaboration\Files\Image Files\3\final.csv', header = None)
+mask = mask[mask < 200]
+mask = mask.replace(np.NaN,0)
+mask = mask.astype(bool).astype(int)
+
+from pathlib import Path
+
+folder="LOCATION OF THE FOLDER"
+for file in Path(folder).glob('*.csv'):
+    df = pd.read_csv(file,header = None)
+    df3 = np.multiply(df, mask)
+    x = df3.as_matrix()
+    df3.index = range(1,len(df)+1)
+    x = df3.stack()
+    x.to_csv("LOCATION TO SAVE THE FILE")
+    data = pd.read_csv("LOADING THE CSV FILE",header = None)
+
+    #giving col names
+    data.columns = ["Row #", "Column #", "value"]
+    y = df3.as_matrix()
+    #removing zero from data
+    data = data[data['value'] > 0]
+    img = plt.imshow(y)
+    plt.imsave(file.with_suffix('.jpeg'),y)
+    data.to_csv(file.with_suffix('.csv'), index = False)
+    
+    
+    RGB = imread("LOCATION OF THE MASK FILE");
+I = rgb2gray(RGB);
+csvwrite('LOCATION WHERE WE WANT TO SAVE THIS FILE(csv)',I)
