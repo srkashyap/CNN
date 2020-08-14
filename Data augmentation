@@ -1,1 +1,25 @@
+from keras.layers import Input, Lambda, Dense, Flatten
+from keras.models import Model
+from keras.preprocessing import image
+from keras.preprocessing.image import ImageDataGenerator
+from keras.models import Sequential
+import numpy as np
+from glob import glob
+import matplotlib.pyplot as plt
+
+train_path = '/content/drive/My Drive/expt/train'
+
+gen = image.ImageDataGenerator(horizontal_flip=True, vertical_flip=True)
+
+i = 0
+for batch in gen.flow_from_directory(train_path, target_size=(331,331),
+    class_mode='categorical', shuffle=False, batch_size=4,
+    save_to_dir=train_path+'/augmentedgood', save_prefix='aug',classes=["good"]):
+
+    i += 1
+    if i > 10:
+        break
+
+training_set
+
 
