@@ -10,4 +10,5 @@ Tasks completed:
 2. Using transfer learning (current objective)(13-mar-2020)
 3. Implemented hyperparameter tuning with hparams in tensorflow 
 
-
+<img src='Rec-000229_Liver_11_11520.jpeg' width = 500>
+<img src='Rec-000229_Liver_11_11520.jpeg' width = 500>
